@@ -12,25 +12,25 @@ spec:
 apiVersion: secrets.hashicorp.com/v1beta1
 kind: VaultAuth
 metadata:
-  name: {{ vso_unique_name }}-vault-auth
+  name: {{ item.vso_unique_name }}-vault-auth
 spec:
   vaultConnectionRef: vault-connection
   method: kubernetes
-  mount: {{ vso_unique_name }}-vso
+  mount: {{ item.vso_unique_name }}-vso
   kubernetes:
-    role: {{ vso_unique_name }}-vso-role
+    role: {{ item.vso_unique_name }}-vso-role
     serviceAccount: default
 ---
 apiVersion: secrets.hashicorp.com/v1beta1
 kind: VaultStaticSecret
 metadata:
-  name: {{ vso_unique_name }}-vault-static-secret
+  name: {{ item.vso_unique_name }}-vault-static-secret
 spec:
-  vaultAuthRef: {{ vso_unique_name }}-vault-auth
-  mount: {{ vso_secret_name }}
+  vaultAuthRef: {{ item.vso_unique_name }}-vault-auth
+  mount: {{ item.vso_secret_name }}
   type: kv-v2
-  path:  {{ vso_secret_collection }}
+  path:  {{ item.vso_secret_collection }}
   refreshAfter: 10s
   destination:
     create: true
-    name: {{ vso_unique_name }}-vso-handled
+    name: {{ item.vso_unique_name }}-vso-handled

@@ -4,41 +4,48 @@
   when:
     - vso_create_directory|bool
   ansible.builtin.shell:
-    cmd: "vault secrets enable -path={{ vso_secret_name }} kv-v2"
+    cmd: "vault secrets enable -path={{ item.vso_secret_name }} kv-v2"
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
   ignore_errors: true
+  loop: "{{ secrets_to_create }}"
 
 - name: Put data to secret
   when:
     - vso_create_directory|bool
   ansible.builtin.shell:
-    cmd: vault kv put {{ vso_secret_name }}/{{ vso_secret_collection }} collection={{ vso_secret_collection }}
+    cmd: vault kv put {{ item.vso_secret_name }}/{{ item.vso_secret_collection }} collection={{ item.vso_secret_collection }}
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
+  loop: "{{ secrets_to_create }}"
 
 - name: copy policy.tpl
   template:
     src: policy.tpl.j2
-    dest: /root/{{ vso_unique_name }}-policy.tpl
+    dest: /root/{{ item.vso_unique_name }}-policy.tpl
+  loop: "{{ secrets_to_create }}"
 
 - name: create a policy 
   ansible.builtin.shell:
-    cmd: vault policy write {{ vso_unique_name }}-policy /root/{{ vso_unique_name }}-policy.tpl
+    cmd: vault policy write {{ item.vso_unique_name }}-policy /root/{{ item.vso_unique_name }}-policy.tpl
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
+  loop: "{{ secrets_to_create }}"
+  
 - name: Delete a specific file
   ansible.builtin.file:
-    path: /root/{{ vso_unique_name }}-policy.tpl
+    path: /root/{{ item.vso_unique_name }}-policy.tpl
     state: absent
+  loop: "{{ secrets_to_create }}"
 
 - name: copy configure the authentication between Vault and Kubernetes
   template:
     src: sa.j2
     dest: /root/sa.yml
+  loop: "{{ secrets_to_create }}"
 
 - name: apply configure the authentication between Vault and Kubernetes
   ansible.builtin.shell:
@@ -51,11 +58,12 @@
 
 - name: enable and configure the auth method
   ansible.builtin.shell:
-    cmd: vault auth enable -path={{ vso_unique_name }}-vso kubernetes
+    cmd: vault auth enable -path={{ item.vso_unique_name }}-vso kubernetes
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
   ignore_errors: true
+  loop: "{{ secrets_to_create }}"
   
 # ! ENVIRONMENT SET 
 - name: Get token from Kubernetes secret
@@ -76,7 +84,7 @@
 - name: Write Vault authentication configuration
   ansible.builtin.shell:
     cmd: >
-      vault write auth/{{ vso_unique_name }}-vso/config 
+      vault write auth/{{ item.vso_unique_name }}-vso/config 
       token_reviewer_jwt="{{ __vso_token_output.stdout }}" 
       kubernetes_host="{{ __vso_kube_host_output.stdout }}" 
       kubernetes_ca_cert="{{ __vso_ca_cert_output.stdout }}" 
@@ -84,19 +92,22 @@
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
+  loop: "{{ secrets_to_create }}"
 
 
 
 - name: Write Vault authentication configuration
   ansible.builtin.shell:
-    cmd: vault write auth/{{ vso_unique_name }}-vso/role/{{ vso_unique_name }}-vso-role 
+    cmd: vault write auth/{{ item.vso_unique_name }}-vso/role/{{ item.vso_unique_name }}-vso-role 
       bound_service_account_names=default 
       bound_service_account_namespaces=default 
-      policies={{ vso_unique_name }}-policy 
+      policies={{ item.vso_unique_name }}-policy 
       ttl=24h
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
+  loop: "{{ secrets_to_create }}"
+
 #! Helm repo add if don't exist
 - name: Check if HashiCorp Helm repository is already added
   ansible.builtin.shell:
@@ -126,13 +137,16 @@
 - name: Install and configure the operator
   template:
     src: crd.j2
-    dest: /root/crd.yml
+    dest: /root/{{ item.vso_unique_name }}-crd.yml
+  loop: "{{ secrets_to_create }}"
 
 - name: apply configure the operator
   ansible.builtin.shell:
-    cmd: kubectl apply -f /root/crd.yml
+    cmd: kubectl apply -f /root/{{ item.vso_unique_name }}-crd.yml
+  loop: "{{ secrets_to_create }}"
 
 - name: Delete a specific file
   ansible.builtin.file:
-    path: /root/crd.yml
-    state: absent
+    path: /root/{{ item.vso_unique_name }}-crd.yml
+    state: absent 
+  loop: "{{ secrets_to_create }}"
