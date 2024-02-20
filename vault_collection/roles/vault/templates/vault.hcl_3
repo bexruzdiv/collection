@@ -1,0 +1,21 @@
+ui = true
+cluster_addr  = "https://{{ vault_server_3 }}:8201"
+api_addr      = "http://{{ vault_server_3 }}:8200"
+disable_mlock = true
+storage "raft" {
+  path = "/opt/vault/data"
+  node_id = "raft_node_3"
+}
+
+listener "tcp" {
+  address     = "0.0.0.0:8200"
+  tls_disable = true
+}
+
+
+{% if prometheus|bool %}
+telemetry {
+  disable_hostname = true
+  prometheus_retention_time = "15s"
+}
+{% endif %}

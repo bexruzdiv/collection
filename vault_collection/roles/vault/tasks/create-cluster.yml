@@ -1,0 +1,126 @@
+- name: Create Vault configuration file
+  when: 
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+  template:
+    src: "{{ 'vault.hcl_1' if inventory_hostname == 'leader' else ('vault.hcl_2' if inventory_hostname == 'follower1' else 'vault.hcl_3') }}"
+    dest: /etc/vault.d/vault.hcl
+
+- name: Ensure Vault service is started and enabled
+  when: 
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+  become: true
+  service:
+    name: vault
+    state: started
+    enabled: true
+
+- name: Run vault operator init leader 
+  when: 
+    - inventory_hostname == 'leader'
+  command: vault operator init -address=http://127.0.0.1:8200
+  register: __vault_init_output 
+
+- set_fact:
+    _vault_unseal_key_1: "{{ __vault_init_output.stdout_lines[0].split(': ')[1] }}"
+    _vault_unseal_key_2: "{{ __vault_init_output.stdout_lines[1].split(': ')[1] }}"
+    _vault_unseal_key_3: "{{ __vault_init_output.stdout_lines[2].split(': ')[1] }}"
+    _vault_unseal_key_4: "{{ __vault_init_output.stdout_lines[3].split(': ')[1] }}"
+    _vault_unseal_key_5: "{{ __vault_init_output.stdout_lines[4].split(': ')[1] }}"
+    _vault_root_token: "{{ __vault_init_output.stdout_lines[6].split(': ')[1] }}"
+  when: 
+    - inventory_hostname == 'leader'
+
+- name: Create /root/key file with unseal keys and root token
+  when: 
+    - inventory_hostname == 'leader' 
+    - vault_save_unseal_file|bool
+  ansible.builtin.copy:
+    content: |
+      Unseal Key 1: {{ vault_unseal_use_1 }}
+      Unseal Key 2: {{ vault_unseal_use_2 }}
+      Unseal Key 3: {{ vault_unseal_use_3 }}
+      Unseal Key 4: {{ vault_unseal_use_4 }}
+      Unseal Key 5: {{ vault_unseal_use_5 }}
+      Root Token: {{ vault_root_token }}
+    dest: /root/key
+
+- name: Run vault operator join raft follower1 
+  when: 
+    - inventory_hostname == 'follower1'
+  command: vault operator raft join -address="http://{{ vault_server_1 }}:8200" "http://{{ vault_server_1 }}:8200"
+
+- name: Run vault operator join raft follower2 
+  when: 
+    - inventory_hostname == 'follower2'
+  command: vault operator raft join -address="http://{{ vault_server_1 }}:8200" "http://{{ vault_server_1 }}:8200"
+
+- name: Unseal Vault
+  when:
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+  ansible.builtin.shell:
+    cmd: vault operator unseal -address="http://{{ vault_server_1 }}:8200" "{{ item }}"
+  loop:
+    - "{{ vault_unseal_use_1 }}"
+    - "{{ vault_unseal_use_2 }}"
+    - "{{ vault_unseal_use_3 }}"
+  loop_control:
+    loop_var: item
+  
+- name: Render unseal script
+  when:
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+    - vault_auto_unseal|bool
+  template:
+    src: unseal_vault_template.j2
+    dest: /usr/local/bin/unseal_vault.sh
+    mode: '0755'
+  vars:
+    unseal_1: "{{ vault_unseal_use_1 }}"
+    unseal_2: "{{ vault_unseal_use_2 }}"
+    unseal_3: "{{ vault_unseal_use_3 }}"
+
+- name: Ensure vault service file is present
+  when:
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+    - vault_auto_unseal|bool
+  template:
+    src: vault.service.j2
+    dest: /usr/lib/systemd/system/vault.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Run vault operator join raft to self follower1
+  when:
+    - inventory_hostname == 'follower1'
+  command: vault operator raft join  -address="http://127.0.0.1:8200" "http://{{ vault_server_1 }}:8200"
+
+- name: Self Unseal Vault follower1  
+  when:
+    - inventory_hostname == 'follower1'
+  ansible.builtin.shell:
+    cmd: vault operator unseal -address="http://127.0.0.1:8200" "{{ item }}"
+  loop:
+    - "{{ vault_unseal_use_1 }}"
+    - "{{ vault_unseal_use_2 }}"
+    - "{{ vault_unseal_use_3 }}"
+  loop_control:
+    loop_var: item
+
+- name: Run vault operator join raft to self follower2
+  when:
+    - inventory_hostname == 'follower2'
+  command: vault operator raft join -address="http://127.0.0.1:8200" "http://{{ vault_server_1 }}:8200" 
+
+- name: Self Unseal Vault follower2
+  when:
+    - inventory_hostname == 'follower2'
+  ansible.builtin.shell:
+    cmd: vault operator unseal -address="http://127.0.0.1:8200" "{{ item }}"
+  loop:
+    - "{{ vault_unseal_use_1 }}"
+    - "{{ vault_unseal_use_2 }}"
+    - "{{ vault_unseal_use_3 }}"
+  loop_control:
+    loop_var: item

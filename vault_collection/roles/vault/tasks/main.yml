@@ -1,0 +1,6 @@
+---
+- import_tasks: install-vault.yml
+  when: 
+    - inventory_hostname in ['leader', 'follower1', 'follower2']
+
+- import_tasks: create-cluster.yml

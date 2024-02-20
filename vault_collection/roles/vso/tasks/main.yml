@@ -1,0 +1,124 @@
+---
+# tasks file for vault_secret_operator
+- name: Enable Vault secrets engine
+  when:
+    - vso_create_directory|bool
+  ansible.builtin.shell:
+    cmd: "vault secrets enable -path={{ vso_secret_name }} kv-v2"
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+  ignore_errors: true
+
+- name: Put data to secret
+  when:
+    - vso_create_directory|bool
+  ansible.builtin.shell:
+    cmd: vault kv put {{ vso_secret_name }}/{{ vso_secret_collection }} collection={{ vso_secret_collection }}
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+
+- name: copy policy.tpl
+  template:
+    src: policy.tpl.j2
+    dest: /root/{{ vso_secret_collection }}-policy.tpl
+
+- name: create a policy 
+  ansible.builtin.shell:
+    cmd: vault policy write {{ vso_secret_collection }}-policy /root/{{ vso_secret_collection }}-policy.tpl
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+
+- name: copy configure the authentication between Vault and Kubernetes
+  template:
+    src: sa.j2
+    dest: /root/sa.yml
+
+- name: apply configure the authentication between Vault and Kubernetes
+  ansible.builtin.shell:
+    cmd: kubectl apply -f /root/sa.yml
+
+- name: enable and configure the auth method
+  ansible.builtin.shell:
+    cmd: vault auth enable -path={{ vso_secret_collection }}-vso kubernetes
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+  ignore_errors: true
+  
+# ! ENVIRONMENT SET 
+- name: Get token from Kubernetes secret
+  ansible.builtin.shell:
+    cmd: "kubectl get secret vault-auth --output='go-template={{ '{{' }} .data.token {{ '}}' }}' | base64 --decode"
+  register: __vso_token_output
+
+- name: Get Kubernetes CA certificate
+  ansible.builtin.shell:
+    cmd: "kubectl config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode"
+  register: __vso_ca_cert_output
+
+- name: Get Kubernetes host
+  ansible.builtin.shell:
+    cmd: "kubectl config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.server}'"
+  register: __vso_kube_host_output
+# !!!
+- name: Write Vault authentication configuration
+  ansible.builtin.shell:
+    cmd: >
+      vault write auth/{{ vso_secret_collection }}-vso/config 
+      token_reviewer_jwt="{{ __vso_token_output.stdout }}" 
+      kubernetes_host="{{ __vso_kube_host_output.stdout }}" 
+      kubernetes_ca_cert="{{ __vso_ca_cert_output.stdout }}" 
+      disable_issuer_verification=true
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+
+
+
+- name: Write Vault authentication configuration
+  ansible.builtin.shell:
+    cmd: vault write auth/{{ vso_secret_collection }}-vso/role/{{ vso_secret_collection }}-vso-role 
+      bound_service_account_names=default 
+      bound_service_account_namespaces=default 
+      policies={{ vso_secret_collection }}-policy 
+      ttl=24h
+  environment:
+    VAULT_ADDR: "{{ vso_vault_address }}"
+    VAULT_TOKEN: "{{ vso_vault_token }}"
+#! Helm repo add if don't exist
+- name: Check if HashiCorp Helm repository is already added
+  ansible.builtin.shell:
+    cmd: "helm repo list | grep -q hashicorp"
+  register: repo_check
+  changed_when: false
+  ignore_errors: true
+
+- name: Add HashiCorp Helm repository
+  ansible.builtin.shell:
+    cmd: "helm repo add hashicorp https://helm.releases.hashicorp.com"
+  when: repo_check.rc != 0
+
+- name: Check if Vault Secrets Operator is already installed
+  ansible.builtin.shell:
+    cmd: "helm list | grep -q vault-secrets-operator"
+  register: chart_check
+  changed_when: false
+  ignore_errors: true
+
+
+- name: Install Vault Secrets Operator using Helm
+  ansible.builtin.shell:
+    cmd: "helm install vault-secrets-operator hashicorp/vault-secrets-operator"
+  when: chart_check.rc != 0
+
+- name: Install and configure the operator
+  template:
+    src: crd.j2
+    dest: /root/crd.yml
+
+- name: apply configure the operator
+  ansible.builtin.shell:
+    cmd: kubectl apply -f /root/crd.yml

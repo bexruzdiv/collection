@@ -1,0 +1,6 @@
+---
+# defaults file for vault_backup
+backup_vault_token: ""
+backup_vault_address: "https://your_domain.uz"
+backup_base_path: "/root"
+backup_cronjob: true

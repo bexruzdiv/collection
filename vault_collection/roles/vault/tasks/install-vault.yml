@@ -1,0 +1,28 @@
+---
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - software-properties-common
+    - wget
+
+
+- name: Add HashiCorp GPG key
+  shell: |
+    wget -qO - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  become: true
+  
+- name: Add HashiCorp APT repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_lsb.codename }} main"
+    state: present
+
+- name: Update apt packages
+  apt:
+    update_cache: yes
+
+- name: Install Vault
+  apt:
+    name: vault
+    state: present

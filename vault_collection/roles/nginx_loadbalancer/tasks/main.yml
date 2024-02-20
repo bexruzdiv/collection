@@ -1,0 +1,54 @@
+---
+- name: Update apt cache
+  when: inventory_hostname == 'loadbalancer'
+  apt:
+    update_cache: yes
+
+- name: Install certbot and plugins
+  when: inventory_hostname == 'loadbalancer' and ansible_facts['distribution'] == "Ubuntu"
+  apt:
+    name: ["certbot", "python3-certbot-nginx"]
+    state: present
+
+
+- name: Install Nginx
+  when: inventory_hostname == 'loadbalancer'
+  apt:
+    name: nginx
+    state: present
+- name: delete default nginx site
+  when: inventory_hostname == 'loadbalancer'
+  file:
+    path: /etc/nginx/sites-available/default
+    state: absent
+
+- name: delete default nginx site
+  when: inventory_hostname == 'loadbalancer'
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: copy nginx nginx.conf without ssl
+  when: inventory_hostname == 'loadbalancer' and item.renew
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ item.domain }}
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ nginx_domains }}"
+
+- name: Create a symbolic link
+  when: inventory_hostname == 'loadbalancer' and item.renew
+  file:
+    src: /etc/nginx/sites-available/{{ item.domain }}
+    dest: /etc/nginx/sites-enabled/{{ item.domain }}
+    state: link
+  loop: "{{ nginx_domains }}"
+
+- include_tasks: create-cert-standalone.yml
+  when: cert_item.renew and inventory_hostname == 'loadbalancer'
+  with_items: "{{ nginx_domains }}"
+  loop_control:
+    loop_var: cert_item
+    

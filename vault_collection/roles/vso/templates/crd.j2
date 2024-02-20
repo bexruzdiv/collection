@@ -1,0 +1,36 @@
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultConnection
+metadata:
+  namespace: default
+  name: vault-connection
+spec:
+  # address to the Vault server.
+  address: {{ vso_vault_address }}
+  skipTLSVerify: true
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: {{ vso_secret_collection }}-vault-auth
+spec:
+  vaultConnectionRef: vault-connection
+  method: kubernetes
+  mount: {{ vso_secret_collection }}-vso
+  kubernetes:
+    role: {{ vso_secret_collection }}-vso-role
+    serviceAccount: default
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
+metadata:
+  name: {{ vso_secret_collection }}-vault-static-secret
+spec:
+  vaultAuthRef: {{ vso_secret_collection }}-vault-auth
+  mount: {{ vso_secret_name }}
+  type: kv-v2
+  path:  {{ vso_secret_collection }}
+  refreshAfter: 10s
+  destination:
+    create: true
+    name: {{ vso_secret_collection }}-vso-handled

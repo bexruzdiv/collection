@@ -1,0 +1,18 @@
+---
+# handlers file for cluster_vaul_hashi
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: vault.service
+  become: true
+- name: Reload Prometheus
+  ansible.builtin.systemd:
+    name: prometheus
+    state: reloaded
+
+- name: reload systemd prom
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: prometheus.service

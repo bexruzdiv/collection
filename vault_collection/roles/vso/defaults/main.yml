@@ -1,0 +1,10 @@
+---
+# defaults file for vault_secret_operator\
+#! if you have created secret and collection change to false and show path
+vso_create_directory: true
+
+vso_secret_name: ""
+vso_secret_collection: ""
+
+vso_vault_address: "http://your_vault_addr:8200" #your vault cluster address
+vso_vault_token: "your_token"

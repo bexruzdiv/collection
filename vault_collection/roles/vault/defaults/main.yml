@@ -1,0 +1,20 @@
+vault_server_1:   # * leader ip address
+vault_server_2:   # * follower 1 ip address
+vault_server_3:   # * follower 2 ip address
+
+prometheus: true
+
+# *! Warnig!!! Unseal keys can be dangerous to store. This may give others access to the Vault!
+#* save all unseal key and token in leader server /root/key
+vault_save_unseal_file: true 
+
+#* auto unseal when vault restarted. 
+vault_auto_unseal: true
+
+
+vault_unseal_use_1: "{{ hostvars['leader']._vault_unseal_key_1 }}"
+vault_unseal_use_2: "{{ hostvars['leader']._vault_unseal_key_2 }}"
+vault_unseal_use_3: "{{ hostvars['leader']._vault_unseal_key_3 }}"
+vault_unseal_use_4: "{{ hostvars['leader']._vault_unseal_key_4 }}"
+vault_unseal_use_5: "{{ hostvars['leader']._vault_unseal_key_5 }}"
+vault_root_token: "{{ hostvars['leader']._vault_root_token }}" 

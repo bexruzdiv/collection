@@ -1,0 +1,19 @@
+upstream {{ item.upstream }} {
+        server {{ item.host1 }}:{{ item.port }} max_fails=3 fail_timeout=60s;
+        server {{ item.host2 }}:{{ item.port }} max_fails=3 fail_timeout=60s;
+        server {{ item.host3 }}:{{ item.port }} max_fails=3 fail_timeout=60s;
+}
+
+server {
+        server_name {{ item.domain }};
+
+        location / {
+                proxy_pass http://{{ item.upstream }};
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+                client_max_body_size {{ item.client_max_body_size }};
+        }
+}
