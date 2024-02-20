@@ -22,14 +22,18 @@
 - name: copy policy.tpl
   template:
     src: policy.tpl.j2
-    dest: /root/{{ vso_secret_collection }}-policy.tpl
+    dest: /root/{{ vso_unique_name }}-policy.tpl
 
 - name: create a policy 
   ansible.builtin.shell:
-    cmd: vault policy write {{ vso_secret_collection }}-policy /root/{{ vso_secret_collection }}-policy.tpl
+    cmd: vault policy write {{ vso_unique_name }}-policy /root/{{ vso_unique_name }}-policy.tpl
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
+- name: Delete a specific file
+  ansible.builtin.file:
+    path: /root/{{ vso_unique_name }}-policy.tpl
+    state: absent
 
 - name: copy configure the authentication between Vault and Kubernetes
   template:
@@ -40,9 +44,14 @@
   ansible.builtin.shell:
     cmd: kubectl apply -f /root/sa.yml
 
+- name: Delete a specific file
+  ansible.builtin.file:
+    path: /root/sa.yml
+    state: absent
+
 - name: enable and configure the auth method
   ansible.builtin.shell:
-    cmd: vault auth enable -path={{ vso_secret_collection }}-vso kubernetes
+    cmd: vault auth enable -path={{ vso_unique_name }}-vso kubernetes
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
     VAULT_TOKEN: "{{ vso_vault_token }}"
@@ -67,7 +76,7 @@
 - name: Write Vault authentication configuration
   ansible.builtin.shell:
     cmd: >
-      vault write auth/{{ vso_secret_collection }}-vso/config 
+      vault write auth/{{ vso_unique_name }}-vso/config 
       token_reviewer_jwt="{{ __vso_token_output.stdout }}" 
       kubernetes_host="{{ __vso_kube_host_output.stdout }}" 
       kubernetes_ca_cert="{{ __vso_ca_cert_output.stdout }}" 
@@ -80,10 +89,10 @@
 
 - name: Write Vault authentication configuration
   ansible.builtin.shell:
-    cmd: vault write auth/{{ vso_secret_collection }}-vso/role/{{ vso_secret_collection }}-vso-role 
+    cmd: vault write auth/{{ vso_unique_name }}-vso/role/{{ vso_unique_name }}-vso-role 
       bound_service_account_names=default 
       bound_service_account_namespaces=default 
-      policies={{ vso_secret_collection }}-policy 
+      policies={{ vso_unique_name }}-policy 
       ttl=24h
   environment:
     VAULT_ADDR: "{{ vso_vault_address }}"
@@ -111,7 +120,7 @@
 
 - name: Install Vault Secrets Operator using Helm
   ansible.builtin.shell:
-    cmd: "helm --kubeconfig={{ kubeconfig }} install vault-secrets-operator hashicorp/vault-secrets-operator"
+    cmd: "helm  --kubeconfig={{ kubeconfig }} install vault-secrets-operator hashicorp/vault-secrets-operator"
   when: chart_check.rc != 0
 
 - name: Install and configure the operator
@@ -122,3 +131,8 @@
 - name: apply configure the operator
   ansible.builtin.shell:
     cmd: kubectl apply -f /root/crd.yml
+
+- name: Delete a specific file
+  ansible.builtin.file:
+    path: /root/crd.yml
+    state: absent
