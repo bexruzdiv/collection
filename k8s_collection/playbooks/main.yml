@@ -1,0 +1,17 @@
+- name: Set cilium network plugin to k8s cluster
+  hosts: localhost
+  gather_facts: False
+  roles:
+    - role: cilium 
+
+- name: Set ingress-nginx to k8s cluster
+  hosts: localhost
+  gather_facts: False
+  roles:
+    - role: ingress-nginx
+
+- name: Get certificate with certmanger to k8s cluster
+  hosts: localhost
+  gather_facts: False
+  roles:
+    - role: certmanager
