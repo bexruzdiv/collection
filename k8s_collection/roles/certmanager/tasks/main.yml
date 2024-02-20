@@ -1,0 +1,42 @@
+---
+- name: Add Jetstack Helm Repository
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ kubeconfig }} repo add jetstack https://charts.jetstack.io
+
+- name: Update Helm Repositories
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ kubeconfig }} repo update
+
+- name: Run Helm Show Values Command
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ kubeconfig }} show values jetstack/cert-manager --version {{ prxmkuberbootstrap_certmanager_version }} > /root/values.yml 
+  args:
+    executable: /bin/bash
+
+- name: Open values.yml and modify installCRDs and prometheus settings
+  ansible.builtin.replace:
+    path: /root/values.yml
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop:
+    - { regexp: 'installCRDs: false', replace: 'installCRDs: true' }
+    - { regexp: '^prometheus:\n *enabled: true', replace: 'prometheus:\n  enabled: false' }
+
+
+- name: Run Helm Upgrade Command
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ kubeconfig }} upgrade --install cert-manager jetstack/cert-manager --create-namespace --version {{ prxmkuberbootstrap_certmanager_version }} --values /root/values.yml 
+  args:
+    executable: /bin/bash
+
+- name: Create Issuer YAML File
+  template:
+    src: issuer.yml.j2
+    dest: /root/issuer.yml
+
+
+- name: Apply Issuer Configuration
+  ansible.builtin.command:
+    cmd: kubectl apply -f /root/issuer.yml
+  args:
+    executable: /bin/bash
