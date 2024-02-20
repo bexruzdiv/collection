@@ -1,0 +1,23 @@
+- name: Setup vault cluster
+  hosts: vault
+  gather_facts: False
+  roles:
+    - role: vault
+
+- name: Setup nginx loadbalancer and get tls with certbot
+  hosts: vault
+  gather_facts: False
+  roles:
+    - role: nginx_loadbalancer
+
+- name: Backup from vault cluster
+  hosts: your_server
+  gather_facts: False
+  roles:
+    - role: vault_backup
+
+- name: Vault secret Operator
+  hosts: localhost
+  gather_facts: False
+  roles:
+    - role: vso

@@ -91,19 +91,19 @@
 #! Helm repo add if don't exist
 - name: Check if HashiCorp Helm repository is already added
   ansible.builtin.shell:
-    cmd: "helm repo list | grep -q hashicorp"
+    cmd: "helm --kubeconfig={{ kubeconfig }} repo list | grep -q hashicorp"
   register: repo_check
   changed_when: false
   ignore_errors: true
 
 - name: Add HashiCorp Helm repository
   ansible.builtin.shell:
-    cmd: "helm repo add hashicorp https://helm.releases.hashicorp.com"
+    cmd: "helm --kubeconfig={{ kubeconfig }} repo add hashicorp https://helm.releases.hashicorp.com"
   when: repo_check.rc != 0
 
 - name: Check if Vault Secrets Operator is already installed
   ansible.builtin.shell:
-    cmd: "helm list | grep -q vault-secrets-operator"
+    cmd: "helm --kubeconfig={{ kubeconfig }} list | grep -q vault-secrets-operator"
   register: chart_check
   changed_when: false
   ignore_errors: true
@@ -111,7 +111,7 @@
 
 - name: Install Vault Secrets Operator using Helm
   ansible.builtin.shell:
-    cmd: "helm install vault-secrets-operator hashicorp/vault-secrets-operator"
+    cmd: "helm --kubeconfig={{ kubeconfig }} install vault-secrets-operator hashicorp/vault-secrets-operator"
   when: chart_check.rc != 0
 
 - name: Install and configure the operator
