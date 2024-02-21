@@ -4,12 +4,12 @@ nginx_admin_email: example@gmail.com
 nginx_certbot_certificate_presence: yes
 nginx_domains:
   
-  - domain: example.com
+  - domain: example.domen.uz
     port: 8200
-    upstream: example.com
+    upstream: example.domen.uz
     client_max_body_size: 100M
 #*  vault cluster IPs
-    host1: #ip
-    host2: #ip  
-    host3: #ip
+    host1:  #ip
+    host2:  #ip  
+    host3:  #ip
     renew: true

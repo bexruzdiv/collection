@@ -150,3 +150,5 @@
     path: /root/{{ item.vso_unique_name }}-crd.yml
     state: absent 
   loop: "{{ secrets_to_create }}"
+
+

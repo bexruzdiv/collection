@@ -25,7 +25,7 @@
 
 - name: Run Helm Upgrade Command
   ansible.builtin.shell:
-    cmd: helm --kubeconfig={{ kubeconfig }} upgrade --install cert-manager jetstack/cert-manager --create-namespace --version {{ prxmkuberbootstrap_certmanager_version }} --values /root/values.yml 
+    cmd: helm --kubeconfig={{ kubeconfig }} upgrade  cert-manager jetstack/cert-manager --install --create-namespace --namespace cert-manager --version {{ prxmkuberbootstrap_certmanager_version }} --values /root/values.yml 
   args:
     executable: /bin/bash
 
@@ -37,6 +37,6 @@
 
 - name: Apply Issuer Configuration
   ansible.builtin.command:
-    cmd: kubectl apply -f /root/issuer.yml
+    cmd: kubectl apply -f /root/issuer.yml -n cert-managerer
   args:
     executable: /bin/bash

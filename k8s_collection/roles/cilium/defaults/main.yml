@@ -2,9 +2,9 @@
 # defaults file for cilium
 
 cilium_version: 1.14.6
-kubeconfig: /home/bexruz/.kube/config
+kubeconfig: /root/.kube/config
 cilium_ingress_file_path: /root
-cilium_hubble_domain: hubble.bexruzdev.uz
+cilium_hubble_domain: example.uz
 cilium_hubble_relay: true
 cilium_hubble_ui: true
 cilium_hubble_tls_auto: true 

@@ -1,23 +1,23 @@
-- name: Setup vault cluster
-  hosts: vault
-  gather_facts: False
-  roles:
-    - role: vault
+# - name: Setup nginx loadbalancer and get tls with certbot
+#   hosts: vault
+#   gather_facts: True
+#   roles:
+#     - role: ../roles/nginx_loadbalancer
+# - name: Setup vault cluster
+#   hosts: vault
+#   gather_facts: True
+#   roles:
+#     - role: ../roles/vault
 
-- name: Setup nginx loadbalancer and get tls with certbot
-  hosts: vault
-  gather_facts: False
-  roles:
-    - role: nginx_loadbalancer
 
-- name: Backup from vault cluster
-  hosts: your_server
-  gather_facts: False
-  roles:
-    - role: vault_backup
+# - name: Backup from vault cluster
+#   hosts: your_server
+#   gather_facts: False
+#   roles:
+#     - role: ../roles/vault_backup
 
 - name: Vault secret Operator
   hosts: localhost
-  gather_facts: False
+  gather_facts: True
   roles:
-    - role: vso
+    - role: ../roles/vso

@@ -1,17 +1,15 @@
 ---
 # defaults file for vault_secret_operator\
-kubeconfig: /home/bexruz/.kube/config # set to your kube config
+kubeconfig: /root/.kube/config # set to your kube config
 #! if you have created secret and collection change to false and show path
 vso_create_directory: false
 
 secrets_to_create:
-  - vso_secret_name: "loop"                # your secret engine name 
-    vso_secret_collection: "test1"     # path to your collection ("my_data", or like "data/my_info/number")
-    vso_unique_name: loop1                  #! use unique word and never use it again all policy, auth, secret, tokens depend on this unique word!
-  - vso_secret_name: "loop"   
-    vso_secret_collection: "test2"
-    vso_unique_name: loop2
+  - vso_secret_name: ""                # your secret engine name 
+    vso_secret_collection: ""          # path to your collection ("my_data", or like "data/my_info/number")
+    vso_unique_name:                   #! use unique word and never use it again all policy, auth, secret, tokens depend on this unique word!
 
-    
-vso_vault_address: "https://vault0.bexruzdev.uz" #your vault cluster address
-vso_vault_token: "hvs.RkovRS3dnj5iqUHP4ny2Iq7v"
+
+
+vso_vault_address: "https://example.com" #your vault cluster address
+vso_vault_token: "vault token" # Your vault Token 

@@ -1,6 +1,6 @@
-vault_server_1:   # * leader ip address
-vault_server_2:   # * follower 1 ip address
-vault_server_3:   # * follower 2 ip address
+vault_server_1:    # * leader ip address
+vault_server_2:    # * follower 1 ip address
+vault_server_3:    # * follower 2 ip address
 
 prometheus: true
 
