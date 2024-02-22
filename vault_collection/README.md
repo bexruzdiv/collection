@@ -160,12 +160,12 @@ Change variables in the defaults/main.yml
   -  If you already have secret, collection and data Change the value of `vso_create_directory` to `false` and write path
 
 > [!NOTE]
->  `secrets_to_create` is loop. You can use it unlimited with by writing 3 parameters
+>  `secrets_to_create` is loop :loop: . You can use it unlimited with by writing 3 parameters
 
 
   -  Write your secret name to `vso_secret_name`
   -  Write path of your collection name to `vso_secret_collection`
-  -  Write   unique word for `vso_unique_name` and don't use it again. All policy, auth, secret, tokens depend on this unique word :interrobang:
+  -  Write   unique word for `vso_unique_name` and don't use it again. All policy, auth, secret, tokens depend on this unique word :exclamation:
   -  Change to  your`s  domain or ip address of `vso_vault_address`
   -  Set to your vault token `vso_vault_token`
 
