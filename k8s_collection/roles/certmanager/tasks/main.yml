@@ -25,9 +25,19 @@
 
 - name: Run Helm Upgrade Command
   ansible.builtin.shell:
-    cmd: helm --kubeconfig={{ kubeconfig }} upgrade  cert-manager jetstack/cert-manager --install --create-namespace --namespace cert-manager --version {{ prxmkuberbootstrap_certmanager_version }} --values /root/values.yml 
+    cmd: >
+      helm --kubeconfig={{ kubeconfig }} upgrade  cert-manager jetstack/cert-manager 
+      --install 
+      --create-namespace 
+      --namespace cert-manager 
+      --version {{ prxmkuberbootstrap_certmanager_version }} --values /root/values.yml 
   args:
     executable: /bin/bash
+
+- name: Delete a specific file
+  ansible.builtin.file:
+    path: /root/values.yml
+    state: absent 
 
 - name: Create Issuer YAML File
   template:
@@ -40,3 +50,8 @@
     cmd: kubectl apply -f /root/issuer.yml -n cert-managerer
   args:
     executable: /bin/bash
+
+- name: Delete a specific file
+  ansible.builtin.file:
+    path: /root/issuer.yml
+    state: absent 
