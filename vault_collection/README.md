@@ -3,7 +3,7 @@
 __Vault__, developed by __HashiCorp__, functions as an identity-centric platform for managing secrets and encryption :lock: . It provides encryption services that are gated by authentication and authorization methods to ensure secure, auditable and restricted access to secrets. It is used to secure :shield: , store and protect secrets and other sensitive data using a __UI__, __CLI__, or __HTTP API__. A secret is anything important that you want to keep safe, like passwords, keys, or certificates. Vault makes it easy to manage all these secrets securely, controlling who can access them and keeping track of who does. [MORE](https://developer.hashicorp.com/vault/docs/what-is-vault)
 
 ## How it does work?
-Vault operates by using tokens, which are linked to client policies. These policies determine what actions and paths a client can access. Tokens can be manually created and assigned to clients, or clients can obtain them by logging in. The main steps in Vault's workflow are:
+Vault operates by using tokens, which are linked to client policies. These policies determine what actions and paths a client can access :key: . Tokens can be manually created and assigned to clients, or clients can obtain them by logging in. The main steps in Vault's workflow are:
 
 - `Authenticate: Clients prove their identity to Vault, which then generates a token linked to their policy`
 - `Validation: Vault validates the client against third-party trusted sources, such as Github`
@@ -165,7 +165,7 @@ Change variables in the defaults/main.yml
 
   -  Write your secret name to `vso_secret_name`
   -  Write path of your collection name to `vso_secret_collection`
-  -  Write   unique word for `vso_unique_name` and don't use it again. All policy, auth, secret, tokens depend on this unique word
+  -  Write   unique word for `vso_unique_name` and don't use it again. All policy, auth, secret, tokens depend on this unique word :interrobang:
   -  Change to  your`s  domain or ip address of `vso_vault_address`
   -  Set to your vault token `vso_vault_token`
 
