@@ -1,7 +1,6 @@
 ---
 # tasks file for csi
----
-# tasks file for csi
+
 - name: Add hcloud-csi Helm repository
   when:
     - cni_hcloud_check|bool
