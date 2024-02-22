@@ -154,12 +154,18 @@ __This Ansible role performs the following tasks:__
 ### Required of you!
 Change variables in the defaults/main.yml
 
-![image](https://github.com/bexruzdiv/cluster_vault/assets/107495220/e9d9e59e-a9cd-4f6e-b24e-c869e8749ab4)
+![image](https://github.com/bexruzdiv/collection/assets/107495220/c8a4f8af-624c-495a-b4ae-58c0620b19f5)
 
   -  Change the value of `vso_create_directory` to `true` if you don't already have a defined secret and collection!
   -  If you already have secret, collection and data Change the value of `vso_create_directory` to `false` and write path
+
+> [!NOTE]
+>  `secrets_to_create` is loop. You can use it unlimited with by writing 3 parameters
+
+
   -  Write your secret name to `vso_secret_name`
-  -  Write your collection name to `vso_secret_collection`
+  -  Write path of your collection name to `vso_secret_collection`
+  -  Write   unique word for `vso_unique_name` and don't use it again. All policy, auth, secret, tokens depend on this unique word
   -  Change to  your`s  domain or ip address of `vso_vault_address`
   -  Set to your vault token `vso_vault_token`
 
