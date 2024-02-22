@@ -27,7 +27,7 @@
   ansible.builtin.shell:
     cmd: >
       helm install longhorn-system longhorn/longhorn 
-      --namespace longhorn-system 
+      --namespace longhorn-systems
       --create-namespace 
       --kubeconfig={{ csi_kubeconfig }}
   args:

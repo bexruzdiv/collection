@@ -1,5 +1,5 @@
 ---
 # defaults file for csi
-cni_hcloud_check: false   # set to "true" for use hcloud-csi-driver 
+cni_hcloud_check: true   # set to "true" for use hcloud-csi-driver 
 csi_kubeconfig: /root/.kube/config
-csi_hcloud_api_token: ""
+csi_hcloud_api_token: "IaY6i1JDj4swZ1R4NP8XeX7mJFfvQFsJOWuUuylrQNy8fvqWtwbUvDeNiXo5jeKD"
