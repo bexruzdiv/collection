@@ -1,0 +1,49 @@
+---
+# tasks file for csi
+- name: Add hcloud-csi Helm repository
+  when:
+    - cni_hcloud_check|bool
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ csi_kubeconfig }} repo add mlohr https://helm-charts.mlohr.com/
+  args:
+    executable: /bin/bash
+
+- name: Add longhorn Helm repository
+  when: "not {{ cni_hcloud_check }}"
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ cni_kubeconfig }} repo add  longhorn https://charts.longhorn.io
+  args:
+    executable: /bin/bash
+
+- name: Update Helm repositories
+  ansible.builtin.shell:
+    cmd: helm --kubeconfig={{ csi_kubeconfig }} repo update
+  args:
+    executable: /bin/bash
+
+- name: Install Longhorn with Helm
+  when: "not {{ cni_hcloud_check }}"
+  ansible.builtin.shell:
+    cmd: >
+      helm install longhorn-system longhorn/longhorn 
+      --namespace longhorn-system 
+      --create-namespace 
+      --kubeconfig={{ csi_kubeconfig }}
+  args:
+    executable: /bin/bash
+
+
+- name: Install or Upgrade hcloud-csi-driver with Helm
+  when:
+    - cni_hcloud_check|bool
+  ansible.builtin.shell:
+    cmd: >
+      helm --kubeconfig={{ csi_kubeconfig }} upgrade --install hcloud-csi-driver mlohr/hcloud-csi-driver
+      --create-namespace 
+      --namespace hcloud-csi
+      --set secret.create=true
+      --set secret.hcloudApiToken={{ csi_hcloud_api_token }}
+      --set storageClass.name=hcloud
+      --set storageClass.isDefault=true
+  args:
+    executable: /bin/bash

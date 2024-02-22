@@ -1,0 +1,5 @@
+---
+# defaults file for csi
+csi_hcloud_check: true
+csi_hcloud_api_token: "p0mb1DMWaigc9F0cgZrCIX2arAI3OuUmNT9iCajNBR1hCMVKLSyLmFPLL8v6AF3O"
+csi_kubeconfig: /root/.kube/config
