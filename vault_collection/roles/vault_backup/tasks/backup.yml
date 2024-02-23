@@ -25,10 +25,10 @@
       [r2]
       type = s3
       provider = Cloudflare
-      access_key_id = bd9c01503fde40f116eaae482ae63cb5
-      secret_access_key = 4a00b69b9a99ad763d732a32cdecd0c4647d2e2948549bacb9af57f622887bfa
+      access_key_id = 
+      secret_access_key = 
       region = auto
-      endpoint = https://88631008d4a6ad3663433902a987cf8d.r2.cloudflarestorage.com
+      endpoint = 
       acl = private
     dest: /root/.config/rclone/rclone.conf
 
