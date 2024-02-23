@@ -7,11 +7,41 @@
   become_user: root
 
 
-- name: Ensure cron job for Vault snapshot is present
-  when: backup_cronjob|bool
+- name: copy installer_rclone
+  template:
+    src: installer_rclone.sh
+    dest: /root/installer_rclone.sh
+
+- name: Run installer_rclone.sh script
+  shell: /bin/bash /root/installer_rclone.sh
+  become: true
+  become_user: root
+
+- name: Create rclone.conf file
+  become: true
+  become_user: root
+  copy:
+    content: |
+      [r2]
+      type = s3
+      provider = Cloudflare
+      access_key_id = bd9c01503fde40f116eaae482ae63cb5
+      secret_access_key = 4a00b69b9a99ad763d732a32cdecd0c4647d2e2948549bacb9af57f622887bfa
+      region = auto
+      endpoint = https://88631008d4a6ad3663433902a987cf8d.r2.cloudflarestorage.com
+      acl = private
+    dest: /root/.config/rclone/rclone.conf
+
+
+- name: copy backup_vault
+  template:
+    src: backup_vault.sh.j2
+    dest: /root/backup_vault.sh
+
+- name: Set up cron job to run backup_vault.sh every minute
   cron:
-    name: "Vault snapshot backup"
-    special_time: "daily"
-    job: "VAULT_TOKEN='{{ backup_vault_token }}' vault operator raft snapshot save -address={{ backup_vault_address }} {{ backup_base_path }}/vault_backup_$(date +\\%d_\\%m_\\%Y).snap"
-    state: "present"
-    user: "root"
+    name: "Backup Vault"
+    minute: "*"
+    job: "/bin/bash /root/backup_vault.sh"
+    user: root
+    state: present

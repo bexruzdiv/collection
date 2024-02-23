@@ -1,6 +1,7 @@
 ---
 # defaults file for vault_backup
-backup_vault_token: ""
-backup_vault_address: "https://your_domain.uz"
+backup_vault_root_token: "hvs.4XjPIJ4zUyL86qp9zscRz06M"
+backup_vault_token: "hvs.CAESIBj_RTgu9sAPrTdgnA49jmw-PnQ5TnFcFRRG1Sxco5U7Gh4KHGh2cy5MNFJGUzFUQ0ZxTVJrdDlUTkRnWTZRS2U"
+backup_vault_address: "https://vaultb.bexruzdev.uz"
 backup_base_path: "/root"
 backup_cronjob: true
