@@ -7,11 +7,11 @@ LEADER_IP=$(VAULT_TOKEN={{ backup_vault_root_token }} vault operator raft list-p
 # Check if the current node is the leader
 if [ "$MY_IP" == "$LEADER_IP" ]; then
     # Run the Vault snapshot backup command
-    VAULT_TOKEN="{{ backup_vault_token }}" vault operator raft snapshot save -address="http://$MY_IP:8200" "/root/vault_backup_$(date +'%d_%m_%Y_%H_%M').snap"
+    VAULT_TOKEN="{{ backup_vault_token }}" vault operator raft snapshot save -address="http://$MY_IP:8200" "{{ backup_base_path }}/vault_backup_$(date +'%d_%m_%Y').snap"
 else
     echo "Current node is not the leader. Skipping snapshot backup."
 fi
-rclone copy vault_backup_$(date +'%d_%m_%Y_%H_%M').snap r2:test-vault
+rclone copy {{ backup_base_path }}/vault_backup_$(date +'%d_%m_%Y').snap r2:test-vault
 
 
 

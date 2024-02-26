@@ -2,6 +2,10 @@
 # defaults file for vault_backup
 backup_vault_root_token: ""
 backup_vault_token: ""
-backup_vault_address: "https://domain.uz"
-backup_base_path: "/root"
+backup_vault_address: "http://domain.com"
+backup_base_path: "/opt/vault/data/raft/snapshots"
 backup_cronjob: true
+
+backup_r2_access_key_id: 
+backup_r2_secret_access_key: 
+backup_r2_endpoint: 

@@ -25,10 +25,10 @@
       [r2]
       type = s3
       provider = Cloudflare
-      access_key_id = 
-      secret_access_key = 
+      access_key_id = {{ backup_r2_access_key_id }}
+      secret_access_key = {{ backup_r2_secret_access_key }}
       region = auto
-      endpoint = 
+      endpoint = {{ backup_r2_endpoint }}
       acl = private
     dest: /root/.config/rclone/rclone.conf
 
@@ -36,12 +36,12 @@
 - name: copy backup_vault
   template:
     src: backup_vault.sh.j2
-    dest: /root/backup_vault.sh
+    dest: /opt/vault/data/raft/backup_vault.sh
 
 - name: Set up cron job to run backup_vault.sh every minute
   cron:
     name: "Backup Vault"
-    minute: "*"
-    job: "/bin/bash /root/backup_vault.sh"
+    special_time: "daily"
+    job: "/bin/bash /opt/vault/data/raft/backup_vault.sh"
     user: root
     state: present
