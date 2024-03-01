@@ -1,5 +1,5 @@
 ---
 # defaults file for prxmkuberbootstrap_certmanager
 kubeconfig: /root/.kube/config  # your kubeconfig file location
-prxmkuberbootstrap_certmanager_email: example@gmail.com # your email
+prxmkuberbootstrap_certmanager_email: bexruzturobjonov0955@gmail.com # your email
 prxmkuberbootstrap_certmanager_version: v1.13.2 

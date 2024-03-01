@@ -1,7 +1,7 @@
 ---
 # default file for ingress-nginx
 kubeconfig: /root/.kube/config
-nginx_ingress_controller_hostPort_enabled: false   #use "true" if the k8s cluster is Bare Metal
-nginx_ingress_controller_hostNetwork: false   #use "true" if the k8s cluster is Bare Metal
-nginx_ingress_controller_service_type: LoadBalancer # use "ClusterIP" if the k8s cluster is Bare Metal
-nginx_ingress_controller_kind: Deployment # use "DaemonSet" if the k8s cluster is Bare Metal
+nginx_ingress_controller_hostPort_enabled: true   #use "true" if the k8s cluster is Bare Metal
+nginx_ingress_controller_hostNetwork: true   #use "true" if the k8s cluster is Bare Metal
+nginx_ingress_controller_service_type: ClusterIP # use "ClusterIP" if the k8s cluster is Bare Metal
+nginx_ingress_controller_kind: DaemonSet # use "DaemonSet" if the k8s cluster is Bare Metal
