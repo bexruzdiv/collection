@@ -1,0 +1,5 @@
+- name: Backup from vault cluster
+  hosts: localhost
+  gather_facts: True
+  roles:
+    - role: ../roles/vault_injector

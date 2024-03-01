@@ -10,14 +10,14 @@
 #     - role: ../roles/vault
 
 
-# - name: Backup from vault cluster
-#   hosts: your_server
-#   gather_facts: False
-#   roles:
-#     - role: ../roles/vault_backup
-
-- name: Vault secret Operator
-  hosts: localhost
+- name: Backup from vault cluster
+  hosts: vault
   gather_facts: True
   roles:
-    - role: ../roles/vso
+    - role: ../roles/vault_backup
+
+# - name: Vault secret Operator
+#   hosts: localhost
+#   gather_facts: True
+#   roles:
+#     - role: ../roles/vso
