@@ -5,13 +5,13 @@ kubeconfig: /root/.kube/config # set to your kube config
 vso_create_directory: false
 
 secrets_to_create:
-  - vso_secret_name: "secret_engine_1"                # your secret engine name 
-    vso_secret_collection: "path/to/collection1"          # path to your collection ("my_data", or like "data/my_info/number")
-    vso_unique_name: "cities"                #! use unique word and never use it again all policy, auth, secret, tokens depend on this unique word!
-  - vso_secret_name: "secret_engine_2" 
-    vso_secret_collection: "path/to/collection2"
-    vso_unique_name: "names"
+  - vso_secret_name: "secret1"                # your secret engine name 
+    vso_secret_collection: "project1/country/uzbekistan/capital"          # path to your collection ("my_data", or like "data/my_info/number")
+    vso_unique_name: "capital2"                #! use unique word and never use it again all policy, auth, secret, tokens depend on this unique word!
+  - vso_secret_name: "secret2" 
+    vso_secret_collection: "project2/country/turkey/capital"
+    vso_unique_name: "capital1"
 
     
-vso_vault_address: "https://example.com" #your vault cluster address
-vso_vault_token: "vault token" # Your vault Token 
+vso_vault_address: "https://vaultb.bexruzdev.uz" #your vault cluster address
+vso_vault_token: "hvs.4XjPIJ4zUyL86qp9zscRz06M" # Your vault Token 
