@@ -1,3 +1,6 @@
+- name: Install Ansible collections
+  ansible.builtin.shell:
+    cmd: ansible-galaxy collection install -r /path/to/requirements.yml
 - name: Backup from vault cluster
   hosts: localhost
   gather_facts: True
